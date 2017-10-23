@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db.database_setup import Base, Brand, Model
+from database_setup import Base, Brand, Model
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ session = DB()
 @app.route('/')
 def Hello():
     brand = session.query(Brand).all()
+
     return render_template(
         'home.html', brands=brand
     )

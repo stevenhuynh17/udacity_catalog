@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 
 
 Base = declarative_base()
-engine = create_engine('sqlite:///data.db')
 
 
 class Brand(Base):
@@ -28,6 +27,8 @@ class Model(Base):
     model_id = Column(Integer, ForeignKey('brand.id'))
     brand = relationship(Brand)
 
+
+engine = create_engine('sqlite:///data.db')
 
 Base.metadata.create_all(engine)
 
