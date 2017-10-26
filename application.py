@@ -11,12 +11,24 @@ Base.metadata.bind = engine
 DB = sessionmaker(bind=engine)
 session = DB()
 
-@app.route('/')
-def Hello():
-    brand = session.query(Brand).all()
 
+@app.route('/')
+def main():
+    brand = session.query(Brand).all()
     return render_template(
         'home.html', brands=brand
+    )
+
+
+@app.route('/<string:brandname>/models')
+def listModels(brandname):
+    brand = session.query(Brand).all()
+    models = session.query(Model).filter_by(model_id=brandname)
+
+    print "MODELS"
+    print models
+    return render_template(
+        'models.html', brands=brand
     )
 
 
