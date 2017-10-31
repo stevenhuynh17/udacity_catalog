@@ -5,12 +5,28 @@
     <title>Home</title>
   </head>
   <body>
-    {% for brand in brands %}
-      <a href='{{
-        url_for('listModels', brandname=brand.name)
-      }}'>
-        <p>{{brand.name}}</p>
-      </a>
-    {% endfor %}
+    <div class="">
+      <h1>
+        <a href="#">Catalog</a>
+      </h1>
+    </div>
+    <div class="">
+      {% for brand in brands %}
+        <a href='{{
+          url_for('listModels', brand_id=brand.id)
+        }}'>
+          <p>{{brand.name}}</p>
+        </a>
+      {% endfor %}
+    </div>
+    <div class="">
+      {% for model in models %}
+        <a href='{{
+          url_for('modelInfo', model_id=model.id)
+        }}'>
+          <p>{{model.name}}</p>
+        </a>
+      {% endfor %}
+    </div>
   </body>
 </html>

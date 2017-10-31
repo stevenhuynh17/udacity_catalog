@@ -15,20 +15,30 @@ session = DB()
 @app.route('/')
 def main():
     brand = session.query(Brand).all()
+    print "BRANDSSS"
+    print brand
     return render_template(
         'home.html', brands=brand
     )
 
 
-@app.route('/<string:brandname>/models')
-def listModels(brandname):
-    brand = session.query(Brand).all()
-    models = session.query(Model).filter_by(model_id=brandname)
+@app.route('/<int:brand_id>/models')
+def listModels(brand_id):
+    carMakers = session.query(Brand).all()
+    models = session.query(Model).filter_by(model_id=brand_id).all()
 
-    print "MODELS"
-    print models
     return render_template(
-        'models.html', brands=brand
+        'models.html', brands=carMakers, models=models
+    )
+
+
+@app.route('/models/<int:model_id>')
+def modelInfo(model_id):
+    data = session.query(Model).filter_by(id=model_id).one()
+    print "INFORMATION!!!!"
+    print data
+    return render_template(
+        'modelInfo.html', info=data
     )
 
 
