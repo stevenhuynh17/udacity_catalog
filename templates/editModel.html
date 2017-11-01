@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="">
+      <form class=""
+        action="{{url_for('editModel', model_id=model_id, )}}"
+        method="POST">
+        <p>Name</p>
+        <input
+          type="text"
+          size="30"
+          name="name"
+          placeholder={{car.name}}>
+        <p>Description</p>
+        <input
+          type="text"
+          size="30"
+          name="description"
+          placeholder={{car.description}}>
+        <p>Price</p>
+        <input
+          type="text"
+          size="30"
+          name="price"
+          placeholder={{car.price}}>
+        <p>Category</p>
+        <input
+          type="text"
+          size="30"
+          name="category"
+          placeholder={{car.category}}>
+        <input
+          type="submit"
+          value="Edit Complete">
+      </form>
+      <a href="{{url_for("modelInfo", model_id=model_id)}}">Cancel</a>
+    </div>
+  </body>
+</html>

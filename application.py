@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Brand, Model
@@ -40,6 +40,30 @@ def modelInfo(model_id):
     return render_template(
         'modelInfo.html', info=data
     )
+
+@app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
+def editModel(model_id):
+    modified = session.query(Model).filter_by(id=model_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            modified.name = request.form['name']
+            session.add(modified)
+            session.commit()
+        elif request.form['description']:
+            modified.description = request.form['description']
+            session.add(modified)
+            session.commit()
+        elif request.form['price']:
+            modified.price = request.form['price']
+            session.add(modified)
+            session.commit()
+        elif request.form['category']:
+            modified.category = request.form['category']
+        return redirect(url_for('modelInfo', model_id=model_id))
+    else:
+        return render_template(
+            'editModel.html', model_id=model_id, car=modified
+        )
 
 
 if __name__ == '__main__':
