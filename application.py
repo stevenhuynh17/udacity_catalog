@@ -65,6 +65,17 @@ def editModel(model_id):
             'editModel.html', model_id=model_id, car=modified
         )
 
+@app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
+def deleteModel(model_id):
+    toDelete = session.query(Model).filter_by(id=model_id).one()
+    if request.method == 'POST':
+        session.delete(toDelete)
+        session.commit()
+        return redirect(url_for('modelInfo', model_id=model_id))
+    else:
+        return render_template(
+            "deleteModel.html", model_id=model_id, item=toDelete
+        )
 
 if __name__ == '__main__':
     app.debug = True
