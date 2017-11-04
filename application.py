@@ -15,8 +15,9 @@ session = DB()
 @app.route('/')
 def main():
     brand = session.query(Brand).all()
+    models = session.query(Model).order_by(Model.id.desc())
     return render_template(
-        'home.html', brands=brand
+        'home.html', brands=brand, models=models
     )
 
 
@@ -69,10 +70,11 @@ def newModel():
 @app.route('/<int:brand_id>/models')
 def listModels(brand_id):
     carMakers = session.query(Brand).all()
+    selectedBrand = session.query(Brand).filter_by(id=brand_id).one()
     models = session.query(Model).filter_by(model_id=brand_id).all()
 
     return render_template(
-        'models.html', brands=carMakers, models=models
+        'models.html', brands=carMakers, models=models, brand=selectedBrand.name
     )
 
 
@@ -85,8 +87,6 @@ def modelInfo(model_id):
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
 def editModel(model_id):
-    print "EDITING MODEL!!!!"
-    print model_id
     modified = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
         if request.form['name']:
