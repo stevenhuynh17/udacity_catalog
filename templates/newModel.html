@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="">
+      <h1>
+        <a href="/">Catalog</a>
+      </h1>
+    </div>
+    <div class="">
+      <form
+        class=""
+        action="{{
+          url_for('newModel')
+        }}"
+        method="post">
+        <input type='text' size='30' name='brand' placeholder="Brand">
+        <input type="text" size="30" name="name" placeholder="Name">
+        <input type="text" size="30" name="description" placeholder="Description">
+        <input type="text" size="30" name="price" placeholder="Price">
+        <input type="text" size="30" name="category" placeholder="Category">
+        <input type='submit' value='Create'>
+        <a href="/">Cancel</a>
+      </form>
+    </div>
+  </body>
+</html>

@@ -17,11 +17,13 @@
       <p>{{info.price}}</p>
       <h3>Category</h3>
       <p>{{info.category}}</p>
+      <h3>MODEL ID</h3>
+      <p>{{info.id}}</p>
       <p>
-        <a href="{{url_for("editModel", model_id=info.model_id)}}">Edit</a>
+        <a href="{{url_for("editModel", model_id=info.id)}}">Edit</a>
       </p>
       <p>
-        <a href="{{url_for("deleteModel", model_id=info.model_id)}}">Delete</a>
+        <a href="{{url_for("deleteModel", model_id=info.id)}}">Delete</a>
       </p>
     </div>
   </body>

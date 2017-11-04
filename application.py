@@ -15,12 +15,56 @@ session = DB()
 @app.route('/')
 def main():
     brand = session.query(Brand).all()
-    print "BRANDSSS"
-    print brand
     return render_template(
         'home.html', brands=brand
     )
 
+
+@app.route('/new', methods=['GET', 'POST'])
+def newModel():
+    if request.method == 'POST':
+        # brand = session.query(Brand).filter_by(name=request.form['name']).one()
+        try:
+            print "IN TRY BLOCK"
+            brandname = session.query(Brand).filter_by(name=request.form['brand']).one()
+            newModel = Model(
+                name=request.form['name'],
+                description=request.form['description'],
+                price=request.form['price'],
+                category=request.form['category'],
+                brand=brandname
+            )
+            session.add(newModel)
+            session.commit()
+
+            return redirect(url_for("listModels", brand_id=brandname.id))
+
+        except:
+            print "IN EXCEPTION BLOCK"
+            newBrand = Brand(
+                name=request.form['brand']
+            )
+            session.add(newBrand)
+            session.commit()
+
+            print "NEW BRAND!"
+            print newBrand.name
+
+            newModel = Model(
+                name=request.form['name'],
+                description=request.form['description'],
+                price=request.form['price'],
+                category=request.form['category'],
+                brand=session.query(Brand).filter_by(name=newBrand.name).one()
+            )
+            session.add(newModel)
+            session.commit()
+
+            return redirect(url_for("listModels", brand_id=newBrand.id))
+
+    return render_template(
+        'newModel.html'
+    )
 
 @app.route('/<int:brand_id>/models')
 def listModels(brand_id):
@@ -35,14 +79,14 @@ def listModels(brand_id):
 @app.route('/models/<int:model_id>')
 def modelInfo(model_id):
     data = session.query(Model).filter_by(id=model_id).one()
-    print "INFORMATION!!!!"
-    print data
     return render_template(
         'modelInfo.html', info=data
     )
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
 def editModel(model_id):
+    print "EDITING MODEL!!!!"
+    print model_id
     modified = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -67,11 +111,13 @@ def editModel(model_id):
 
 @app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
 def deleteModel(model_id):
+    print "MODEL ID"
+    print model_id
     toDelete = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
         session.delete(toDelete)
         session.commit()
-        return redirect(url_for('modelInfo', model_id=model_id))
+        return redirect(url_for('listModels', brand_id=model_id))
     else:
         return render_template(
             "deleteModel.html", model_id=model_id, item=toDelete

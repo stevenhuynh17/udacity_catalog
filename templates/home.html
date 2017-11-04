@@ -11,6 +11,11 @@
       </h1>
     </div>
     <div class="">
+      <h3>
+        <a href="{{url_for("newModel")}}">New Model</a>
+      </h3>
+    </div>
+    <div class="">
       {% for brand in brands %}
         <a href='{{
           url_for('listModels', brand_id=brand.id)
