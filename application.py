@@ -67,6 +67,7 @@ def newModel():
         'newModel.html'
     )
 
+
 @app.route('/<int:brand_id>/models')
 def listModels(brand_id):
     carMakers = session.query(Brand).all()
@@ -74,7 +75,7 @@ def listModels(brand_id):
     models = session.query(Model).filter_by(model_id=brand_id).all()
 
     return render_template(
-        'models.html', brands=carMakers, models=models, brand=selectedBrand.name
+        'models.html', brands=carMakers, models=models, brand=selectedBrand
     )
 
 
@@ -84,6 +85,7 @@ def modelInfo(model_id):
     return render_template(
         'modelInfo.html', info=data
     )
+
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
 def editModel(model_id):
@@ -109,10 +111,9 @@ def editModel(model_id):
             'editModel.html', model_id=model_id, car=modified
         )
 
+
 @app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
 def deleteModel(model_id):
-    print "MODEL ID"
-    print model_id
     toDelete = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
         session.delete(toDelete)
@@ -122,6 +123,25 @@ def deleteModel(model_id):
         return render_template(
             "deleteModel.html", model_id=model_id, item=toDelete
         )
+
+
+@app.route('/brand/<int:brand_id>/delete', methods=['GET', 'POST'])
+def deleteBrand(brand_id):
+    deleteBrand = session.query(Brand).filter_by(id=brand_id).one()
+
+    if request.method == 'POST':
+        session.delete(deleteBrand)
+        session.query(Model).filter_by(model_id=brand_id).delete()
+        session.commit()
+        return redirect(url_for('main'))
+    else:
+        return render_template(
+            "deleteBrand.html", brand_id=brand_id, item=deleteBrand
+        )
+
+# @app.route('/JSON')
+# def dataJSON():
+#
 
 if __name__ == '__main__':
     app.debug = True

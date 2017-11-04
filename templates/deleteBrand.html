@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1>Are you sure you want to delete {{item.name}}</h1>
+    <form
+      class=""
+      action="{{
+        url_for('deleteBrand', brand_id=brand_id)
+      }}"
+      method="post">
+      <input type="submit" value="DELETE">
+    </form>
+    <a href="\">Cancel</a>
+  </body>
+</html>
