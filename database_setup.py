@@ -27,11 +27,17 @@ class Model(Base):
     model_id = Column(Integer, ForeignKey('brand.id'))
     brand = relationship(Brand)
 
-# @property
-# def serialize(self):
-#     return {
-#         'name': self.name,
-#     }
+    @property
+    def serialize(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'id': self.id,
+            'price': self.price,
+            'category': self.category,
+            'brand': self.brand.name
+        }
+
 
 engine = create_engine('sqlite:///data.db')
 

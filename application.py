@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Brand, Model
@@ -139,9 +139,11 @@ def deleteBrand(brand_id):
             "deleteBrand.html", brand_id=brand_id, item=deleteBrand
         )
 
-# @app.route('/JSON')
-# def dataJSON():
-#
+
+@app.route('/JSON')
+def dataJSON():
+    models = session.query(Model).all()
+    return jsonify(Catalog=[i.serialize for i in models])
 
 if __name__ == '__main__':
     app.debug = True
