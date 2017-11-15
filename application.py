@@ -3,13 +3,38 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Brand, Model
 
+# Importing libraries to support oauth system
+from flask import session as login_session
+from flask import make_response
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+import random
+import string
+import httplib2
+import json
+import requests
+
 app = Flask(__name__)
+
+CLIENT_ID = json.loads(
+    open('client_secrets.json', 'r').read())['web']['client_id']
+APPLICATION_NAME = "Car Catalog Application"
 
 engine = create_engine('sqlite:///data.db')
 Base.metadata.bind = engine
 
 DB = sessionmaker(bind=engine)
 session = DB()
+
+
+# Login system
+@app.route('/login')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    # return "The current session state is %s" % login_session['state']
+    return render_template('login.html', STATE=state)
 
 
 @app.route('/')
@@ -146,5 +171,6 @@ def dataJSON():
     return jsonify(Catalog=[i.serialize for i in models])
 
 if __name__ == '__main__':
+    app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
