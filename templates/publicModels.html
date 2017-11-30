@@ -9,8 +9,6 @@
       <h1>
         <a href="/">Catalog</a>
       </h1>
-      <p>Currently logged in as: {{user.name}}</p>
-      <a href="/gdisconnect">Logout</a>
     </div>
     <div class="">
       <h3>
@@ -27,9 +25,13 @@
       {% endfor %}
     </div>
     <div class="">
-      <h3>Latest Models</h3>
+      <h2>{{brand.name}}</h2>
+    </div>
+    <div class="">
       {% for model in models %}
-        <a href='#'>
+        <a href='{{
+          url_for('modelInfo', model_id=model.id)
+        }}'>
           <p>{{model.name}}</p>
         </a>
       {% endfor %}

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Brand, Model
+from database_setup import Base, Brand, Model, User
 
 # Importing libraries to support oauth system
 from flask import session as login_session
@@ -99,12 +99,19 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
+    print "JUST AFTER DATA"
 
-    # login_session['username'] = data['name']
-    # login_session['picture'] = data['picture']
-    # login_session['email'] = data['email']
+    login_session['username'] = data['name']
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
 
-    return render_template('test.html')
+    if getUserID(login_session['email']) is None:
+        print "User currently doesn't exist: creating a new one..."
+        createUser(login_session)
+    else:
+        print "User already exists, restablishing connection..."
+
+    return render_template('login_success.html', info=login_session)
 
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -118,42 +125,57 @@ def gdisconnect():
     # print login_session['username']
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
     h = httplib2.Http()
+    print "DATA HERE"
+    print h.request
     result = h.request(url, 'GET')[0]
     print 'result is'
-    print result
+    print result['status']
+
     if result['status'] == '200':
         del login_session['access_token']
         del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
         response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
         response.headers['Content-Type'] = 'application/json'
+        print login_session
         return response
 
 @app.route('/')
 def main():
     brand = session.query(Brand).all()
     models = session.query(Model).order_by(Model.id.desc())
-    return render_template(
-        'home.html', brands=brand, models=models
-    )
+    if 'username' not in login_session:
+        return render_template(
+            'publicHome.html', brands=brand, models=models)
+    else:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'home.html', brands=brand, models=models, user=user)
 
 
 @app.route('/new', methods=['GET', 'POST'])
 def newModel():
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         # brand = session.query(Brand).filter_by(name=request.form['name']).one()
         try:
             print "IN TRY BLOCK"
             brandname = session.query(Brand).filter_by(name=request.form['brand']).one()
+            print "Brandname already exists"
             newModel = Model(
                 name=request.form['name'],
                 description=request.form['description'],
                 price=request.form['price'],
                 category=request.form['category'],
-                brand=brandname
+                brand=brandname,
+                user_id=getUserID(login_session['email'])
             )
             session.add(newModel)
             session.commit()
@@ -163,7 +185,8 @@ def newModel():
         except:
             print "IN EXCEPTION BLOCK"
             newBrand = Brand(
-                name=request.form['brand']
+                name=request.form['brand'],
+                user_id=getUserID(login_session['email'])
             )
             session.add(newBrand)
             session.commit()
@@ -176,7 +199,8 @@ def newModel():
                 description=request.form['description'],
                 price=request.form['price'],
                 category=request.form['category'],
-                brand=session.query(Brand).filter_by(name=newBrand.name).one()
+                brand=session.query(Brand).filter_by(name=newBrand.name).one(),
+                user_id=getUserID(login_session['email'])
             )
             session.add(newModel)
             session.commit()
@@ -193,7 +217,10 @@ def listModels(brand_id):
     carMakers = session.query(Brand).all()
     selectedBrand = session.query(Brand).filter_by(id=brand_id).one()
     models = session.query(Model).filter_by(model_id=brand_id).all()
-
+    if getUserID(login_session['email']) is not selectedBrand.user.id:
+        return render_template(
+            'publicModels.html', brands=carMakers, models=models, brand=selectedBrand
+        )
     return render_template(
         'models.html', brands=carMakers, models=models, brand=selectedBrand
     )
@@ -202,6 +229,14 @@ def listModels(brand_id):
 @app.route('/models/<int:model_id>')
 def modelInfo(model_id):
     data = session.query(Model).filter_by(id=model_id).one()
+    if 'username' not in login_session:
+        return render_template(
+            'publicModelInfo.html', info=data
+        )
+    elif getUserID(login_session['email']) is not data.user.id:
+        return render_template(
+            'publicModelInfo.html', info=data
+        )
     return render_template(
         'modelInfo.html', info=data
     )
@@ -209,6 +244,13 @@ def modelInfo(model_id):
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
 def editModel(model_id):
+    data = session.query(Model).filter_by(id=model_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    elif getUserID(login_session['email']) is not data.user.id:
+        return render_template(
+            'publicModelInfo.html', info=data
+        )
     modified = session.query(Model).filter_by(id=model_id).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -235,6 +277,11 @@ def editModel(model_id):
 @app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
 def deleteModel(model_id):
     toDelete = session.query(Model).filter_by(id=model_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    elif getUserID(login_session['email']) not in toDelete.user.id:
+        return redirect('/')
+
     if request.method == 'POST':
         session.delete(toDelete)
         session.commit()
@@ -247,6 +294,11 @@ def deleteModel(model_id):
 
 @app.route('/brand/<int:brand_id>/delete', methods=['GET', 'POST'])
 def deleteBrand(brand_id):
+    data = session.query(Brand).filter_by(id=brand_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    elif getUserID(login_session['email']) is not data.user.id:
+        return redirect('/')
     deleteBrand = session.query(Brand).filter_by(id=brand_id).one()
 
     if request.method == 'POST':
@@ -264,6 +316,30 @@ def deleteBrand(brand_id):
 def dataJSON():
     models = session.query(Model).all()
     return jsonify(Catalog=[i.serialize for i in models])
+
+
+def createUser(login_session):
+    newUser = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    print "User " + newUser.name + " successfully created!"
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

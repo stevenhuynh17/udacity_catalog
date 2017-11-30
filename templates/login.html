@@ -31,6 +31,7 @@
             contentType: 'application/octet-stream; charset=utf-8',
             success: function(result) {
               if(result) {
+                console.log(result)
                 console.log('In success');
                 $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
                 setTimeout(function(){
