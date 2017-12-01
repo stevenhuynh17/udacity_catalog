@@ -3,36 +3,60 @@
   <head>
     <meta charset="utf-8">
     <title>Home</title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
-    <div class="">
-      <h1>
-        <a href="/">Catalog</a>
-      </h1>
-      <p>Currently logged in as: {{user.name}}</p>
-      <a href="/gdisconnect">Logout</a>
+    <div class="menuBar">
+      <div id="title">
+        <h1>
+          <a href="/">Catalog</a>
+        </h1>
+      </div>
+      <div class="user">
+        <a href="/gdisconnect">Logout</a>
+      </div>
     </div>
-    <div class="">
-      <h3>
-        <a href="{{url_for("newModel")}}">New Model</a>
-      </h3>
+    <div class="currentUser">
+      <p>Currently logged in as: {{user.email}}</p>
     </div>
-    <div class="">
-      {% for brand in brands %}
-        <a href='{{
-          url_for('listModels', brand_id=brand.id)
-        }}'>
-          <p>{{brand.name}}</p>
-        </a>
-      {% endfor %}
-    </div>
-    <div class="">
-      <h3>Latest Models</h3>
-      {% for model in models %}
-        <a href='#'>
-          <p>{{model.name}}</p>
-        </a>
-      {% endfor %}
+    <div class="content">
+      <div class="brands">
+        <div id="title">
+          <h3>Brands</h3>
+        </div>
+        <div id="list">
+          {% for brand in brands %}
+          <div class="brand">
+            <a href='{{
+              url_for('listModels', brand_id=brand.id)
+            }}'>
+              {{brand.name}}
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="models">
+        <div id="title">
+          <h3>Latest Models</h3>
+        </div>
+        <div class="list">
+          {% for model in models %}
+          <div class="model">
+            <a href='{{
+                url_for('modelInfo', model_id=model.id)
+              }}'>
+            {{model.name}}
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="createNewCar">
+        <h4>
+          <a href="{{url_for("newModel")}}">New Model</a>
+        </h4>
+      </div>
     </div>
   </body>
 </html>
