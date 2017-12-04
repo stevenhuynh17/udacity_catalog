@@ -3,10 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
-    <div class="">
-      <a href="/">Catalog</a>
+    <div class="menuBar">
+      <div id="title">
+        <h1>
+          <a href="/">Catalog</a>
+        </h1>
+      </div>
+      <div class="user">
+        <a href="/login">Login</a>
+      </div>
     </div>
     <div class="">
       <h3>Name</h3>
@@ -18,7 +26,6 @@
       <h3>Category</h3>
       <p>{{info.category}}</p>
       <h3>Creator:</h3>
-      <p>{{info.user_id}}</p>
       <p>{{info.user.name}}</p>
     </div>
   </body>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -237,17 +239,21 @@ def listModels(brand_id):
 @app.route('/models/<int:model_id>')
 def modelInfo(model_id):
     data = session.query(Model).filter_by(id=model_id).one()
+
     if 'username' not in login_session:
         return render_template(
             'publicModelInfo.html', info=data
         )
     elif getUserID(login_session['email']) is not data.user.id:
+        user = getUserInfo(getUserID(login_session['email']))
         return render_template(
-            'publicModelInfo.html', info=data
+            'modelInfo.html', info=data, user=user
         )
-    return render_template(
-        'modelInfo.html', info=data
-    )
+    else:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'modelInfo_personal.html', info=data, user=user
+        )
 
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
@@ -285,19 +291,24 @@ def editModel(model_id):
 @app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
 def deleteModel(model_id):
     toDelete = session.query(Model).filter_by(id=model_id).one()
+    print "USER ID!!!"
+    print toDelete.user.id
+    print "INFORMATION!!!"
+    print getUserID(login_session['email'])
+
     if 'username' not in login_session:
         return redirect('/login')
-    elif getUserID(login_session['email']) not in toDelete.user.id:
+    elif getUserID(login_session['email']) is not toDelete.user.id:
         return redirect('/')
-
-    if request.method == 'POST':
-        session.delete(toDelete)
-        session.commit()
-        return redirect(url_for('listModels', brand_id=model_id))
     else:
-        return render_template(
-            "deleteModel.html", model_id=model_id, item=toDelete
-        )
+        if request.method == 'POST':
+            session.delete(toDelete)
+            session.commit()
+            return redirect(url_for('listModels', brand_id=model_id))
+        else:
+            return render_template(
+                "deleteModel.html", model_id=model_id, item=toDelete
+            )
 
 
 @app.route('/brand/<int:brand_id>/delete', methods=['GET', 'POST'])
