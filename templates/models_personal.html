@@ -13,7 +13,7 @@
         </h1>
       </div>
       <div class="user">
-        <a href="/login">Login</a>
+        <a href="/gdisconnect">Logout</a>
       </div>
     </div>
     <div class="currentUser">
@@ -21,7 +21,7 @@
     </div>
     <div class="content">
       <div class="brands">
-        <div id="title">
+        <div class="title">
           <h3>Brands</h3>
         </div>
         <div class="list">
@@ -37,8 +37,13 @@
         </div>
       </div>
       <div class="models">
-        <div id="title">
-          <h3>{{brand.name}}</h3>
+        <div class="title">
+          <h3 id="personal">{{brand.name}}</h3>
+          <h5>
+            <a href="{{
+              url_for("deleteBrand", brand_id=brand.id)
+            }}">Delete</a>
+          </h5>
         </div>
         <div class="list">
           {% for model in models %}

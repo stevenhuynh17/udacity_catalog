@@ -29,28 +29,33 @@ body {
 
 .content {
   display: flex;
+  justify-content: flex-start;
+  height: 100%
 }
 
-.content .models {
-  float: right;
-  padding-left: 2%;
-  padding-right: 2%;
-  margin-left: 5%;
+.models {
+  flex-basis: 23%;
+}
+
+.brands {
+  flex-basis: 30%;
+}
+
+/*.brand {
+  padding: 5% 0% 5% 0%;
 }
 
 .model {
-  padding: auto;
-}
+  padding: 5% 0% 5% 0%;
+}*/
+
+/*#personal {
+  margin-bottom: 0;
+}*/
 
 .list {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.brands #list {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+  justify-content: flex-start;
+  align-items: baseline;
 }
