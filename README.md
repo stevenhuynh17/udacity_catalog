@@ -1,9 +1,7 @@
 # Car Catalog
-___
-Website for cataloging cars. Users can sign in through their Google accounts via OAuth2.0 and can perform CRUD functions. 
+Website for cataloging cars. Users can sign in through their Google accounts via OAuth2.0 and can perform CRUD functions.
 
 ## Installation
-___
 1) Make sure you have the virtual machine environment set up.
   - Follow the link to help set up your VM if you haven't already:
     https://www.vagrantup.com/
@@ -39,7 +37,6 @@ python application.py
 8) Your webpage should be up and running on your local machine! Go ahead and open it in a browser
 
 ## Usage Example
----
 ![alt text](example.png)
 
 ## Author
