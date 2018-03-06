@@ -1,8 +1,8 @@
-#H1 Car Catalog:
+#h1 Car Catalog:
 ___
 Website for cataloging cars
 
-#H2 Installation
+#h2 Installation
 ___
 1) Make sure you have the virtual machine environment set up.
   - Follow the link to help set up your VM if you haven't already:
