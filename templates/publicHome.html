@@ -16,6 +16,15 @@
         <a href="/login">Login</a>
       </div>
     </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          {% for message in messages %}
+          <div class="currentUser">
+            <p>{{message}}</p>
+          </div>
+          {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="content">
       <div class="brands">
         <div id="title">

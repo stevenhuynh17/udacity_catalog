@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, flash, render_template, request, redirect, \
+    url_for, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Brand, Model, User
@@ -63,9 +64,6 @@ def gconnect():
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
 
-    print 'RESULTS'
-    print result
-
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
         response.headers['Content-Type'] = 'application/json'
@@ -101,7 +99,6 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
-    print "JUST AFTER DATA"
 
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
@@ -122,31 +119,16 @@ def gdisconnect():
         print "Access Token is None"
         response = make_response(json.dumps('Current user not connected.'), 401)
         return response
-    print 'In gdisconnect access token is %s', access_token
-    print 'User name is: '
-    # print login_session['username']
+
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
     h = httplib2.Http()
-    print "DATA HERE"
-    print h.request
     result = h.request(url, 'GET')[0]
-    print 'result is'
-    print result['status']
+    login_session.clear()
 
-    if result['status'] == '200':
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-    else:
-        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
-        response.headers['Content-Type'] = 'application/json'
-        print login_session
-        return response
+    brand = session.query(Brand).all()
+    models = session.query(Model).order_by(Model.id.desc())
+    flash("Successfully logged out!")
+    return render_template('publicHome.html', brands=brand, models=models)
 
 @app.route('/')
 def main():
