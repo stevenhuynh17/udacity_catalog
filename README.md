@@ -40,4 +40,5 @@ python application.py
 ![alt text](example.png)
 
 ## Author
-Steven Huynh https://www.linkedin.com/in/stevenhuynh17/
+Steven Huynh
+[Linkedin](https://www.linkedin.com/in/stevenhuynh17/)
