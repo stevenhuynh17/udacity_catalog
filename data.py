@@ -27,7 +27,8 @@ print "BRAND ADDED!!!!!!!!!!"
 model1 = Model(
     user_id=1,
     name="3",
-    description="FWD compact car with two engines to choose from ranging from 155 to 184 hp",
+    description="FWD compact car with two engines to choose from ranging " +
+    "from 155 to 184 hp",
     price="$17,845",
     category="sedan or hatchback",
     brand=Mazda

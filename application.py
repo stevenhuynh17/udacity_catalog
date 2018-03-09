@@ -2,6 +2,7 @@
 
 from flask import Flask, flash, render_template, request, redirect, \
     url_for, jsonify
+from functools import wraps
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Brand, Model, User
@@ -29,7 +30,6 @@ Base.metadata.bind = engine
 DB = sessionmaker(bind=engine)
 session = DB()
 
-
 # Login system
 @app.route('/login')
 def showLogin():
@@ -39,7 +39,7 @@ def showLogin():
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
 
-
+# Third party OAuth sign in via Google
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     if request.args.get('state') != login_session['state']:
@@ -117,10 +117,12 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print "Access Token is None"
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
         return response
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % \
+        login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     login_session.clear()
@@ -130,7 +132,18 @@ def gdisconnect():
     flash("Successfully logged out!")
     return render_template('publicHome.html', brands=brand, models=models)
 
+def login_required(f):
+    @wraps(f)
+    def checkLogin():
+        brand = session.query(Brand).all()
+        models = session.query(Model).order_by(Model.id.desc())
+        if 'username' in login_session:
+            return render_template(
+                'publicHome.html', brands=brand, models=models)
+    return checkLogin
+
 @app.route('/')
+@login_required
 def main():
     brand = session.query(Brand).all()
     models = session.query(Model).order_by(Model.id.desc())
@@ -151,7 +164,8 @@ def newModel():
         # brand = session.query(Brand).filter_by(name=request.form['name']).one()
         try:
             print "IN TRY BLOCK"
-            brandname = session.query(Brand).filter_by(name=request.form['brand']).one()
+            brandname = session.query(Brand).\
+                filter_by(name=request.form['brand']).one()
             print "Brandname already exists"
             newModel = Model(
                 name=request.form['name'],
@@ -203,17 +217,28 @@ def listModels(brand_id):
     models = session.query(Model).filter_by(model_id=brand_id).all()
     if 'username' not in login_session:
         return render_template(
-            'publicModels.html', brands=carMakers, models=models, brand=selectedBrand
+            'publicModels.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand
         )
     elif getUserID(login_session['email']) is not selectedBrand.user.id:
         user = getUserInfo(getUserID(login_session['email']))
         return render_template(
-            'models.html', brands=carMakers, models=models, brand=selectedBrand, user=user
+            'models.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand,
+            user=user
         )
     else:
         user = getUserInfo(getUserID(login_session['email']))
         return render_template(
-            'models_personal.html', brands=carMakers, models=models, brand=selectedBrand, user=user
+            'models_personal.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand,
+            user=user
         )
 
 
@@ -328,12 +353,12 @@ def createUser(login_session):
     session.commit()
     print "User " + newUser.name + " successfully created!"
 
-
+# Function to get general user infomration
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
-
+# Function to retrieve user ID via email
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
