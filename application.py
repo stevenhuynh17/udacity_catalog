@@ -30,7 +30,7 @@ Base.metadata.bind = engine
 DB = sessionmaker(bind=engine)
 session = DB()
 
-# Login system
+# OAuth Login System
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -135,15 +135,13 @@ def gdisconnect():
 def login_required(f):
     @wraps(f)
     def checkLogin():
-        brand = session.query(Brand).all()
-        models = session.query(Model).order_by(Model.id.desc())
-        if 'username' in login_session:
-            return render_template(
-                'publicHome.html', brands=brand, models=models)
+        if 'username' not in login_session:
+            flash("Please login to continue")
+            return redirect('/login')
     return checkLogin
 
+
 @app.route('/')
-@login_required
 def main():
     brand = session.query(Brand).all()
     models = session.query(Model).order_by(Model.id.desc())
@@ -156,10 +154,9 @@ def main():
             'home.html', brands=brand, models=models, user=user)
 
 
+@login_required
 @app.route('/new', methods=['GET', 'POST'])
 def newModel():
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         # brand = session.query(Brand).filter_by(name=request.form['name']).one()
         try:
