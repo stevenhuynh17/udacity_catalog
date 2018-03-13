@@ -50,7 +50,7 @@
           {% for model in models %}
           <div class="model">
             <a href='{{
-                url_for('modelInfo', model_id=model.id)
+                url_for('modelInfo', brand=model.brand.name, model=model.name)
               }}'>
             {{model.name}}
             </a>

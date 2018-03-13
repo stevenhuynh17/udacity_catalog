@@ -28,7 +28,7 @@
           {% for brand in brands %}
           <div class="brand">
             <a href='{{
-              url_for('listModels', brand_id=brand.id)
+              url_for('listModels', brand=brand.name)
             }}'>
               {{brand.name}}
             </a>

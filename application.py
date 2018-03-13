@@ -164,7 +164,7 @@ def listModels(brand):
     carMakers = session.query(Brand).all()
     selectedBrand = session.query(Brand).filter_by(name=brand).one()
     models = session.query(Model).filter_by(brand_id=selectedBrand.id).all()
-
+    print ""
     if 'username' not in login_session:
         return render_template(
             'modelList/publicModels.html',
@@ -189,6 +189,28 @@ def listModels(brand):
             models=models,
             brand=selectedBrand,
             user=user
+        )
+
+
+@app.route('/<brand>/<model>')
+def modelInfo(brand, model):
+    data = session.query(Model).filter_by(name=model).one()
+    print data
+    print "\n"
+
+    if 'username' not in login_session:
+        return render_template(
+            'modelInfo/publicModelInfo.html', info=data
+        )
+    elif getUserID(login_session['email']) is not data.user.id:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'modelInfo/modelInfo.html', info=data, user=user
+        )
+    else:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'modelInfo/modelInfo_personal.html', info=data, user=user
         )
 
 
@@ -243,26 +265,6 @@ def newModel():
     return render_template(
         'newModel.html'
     )
-
-
-@app.route('/models/<int:model_id>')
-def modelInfo(model_id):
-    data = session.query(Model).filter_by(id=model_id).one()
-
-    if 'username' not in login_session:
-        return render_template(
-            'publicModelInfo.html', info=data
-        )
-    elif getUserID(login_session['email']) is not data.user.id:
-        user = getUserInfo(getUserID(login_session['email']))
-        return render_template(
-            'modelInfo.html', info=data, user=user
-        )
-    else:
-        user = getUserInfo(getUserID(login_session['email']))
-        return render_template(
-            'modelInfo_personal.html', info=data, user=user
-        )
 
 
 @app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
