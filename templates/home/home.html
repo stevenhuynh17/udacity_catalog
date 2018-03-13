@@ -13,18 +13,12 @@
         </h1>
       </div>
       <div class="user">
-        <a href="/login">Login</a>
+        <a href="/gdisconnect">Logout</a>
       </div>
     </div>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-          {% for message in messages %}
-          <div class="currentUser">
-            <p>{{message}}</p>
-          </div>
-          {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <div class="currentUser">
+      <p>Currently logged in as: {{user.email}}</p>
+    </div>
     <div class="content">
       <div class="brands">
         <div id="title">
@@ -34,7 +28,7 @@
           {% for brand in brands %}
           <div class="brand">
             <a href='{{
-              url_for('listModels', brand_id=brand.id)
+              url_for('listModels', brand=brand.name)
             }}'>
               {{brand.name}}
             </a>

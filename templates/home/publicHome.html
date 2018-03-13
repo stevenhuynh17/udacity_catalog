@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Home</title>
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css')}}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
     <div class="menuBar">
@@ -16,9 +16,15 @@
         <a href="/login">Login</a>
       </div>
     </div>
-    <div class="currentUser">
-      <p>Currently logged in as: {{user.email}}</p>
-    </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          {% for message in messages %}
+          <div class="currentUser">
+            <p>{{message}}</p>
+          </div>
+          {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="content">
       <div class="brands">
         <div id="title">
@@ -28,7 +34,7 @@
           {% for brand in brands %}
           <div class="brand">
             <a href='{{
-              url_for('listModels', brand_id=brand.id)
+              url_for('listModels', brand=brand.name)
             }}'>
               {{brand.name}}
             </a>
@@ -38,17 +44,17 @@
       </div>
       <div class="models">
         <div id="title">
-          <h3>{{brand.name}}</h3>
+          <h3>Latest Models</h3>
         </div>
         <div class="list">
           {% for model in models %}
-            <div class="model">
-              <a href='{{
+          <div class="model">
+            <a href='{{
                 url_for('modelInfo', model_id=model.id)
               }}'>
-                {{model.name}}
-              </a>
-            </div>
+            {{model.name}}
+            </a>
+          </div>
           {% endfor %}
         </div>
       </div>
@@ -58,6 +64,5 @@
         </h4>
       </div>
     </div>
-
   </body>
 </html>
