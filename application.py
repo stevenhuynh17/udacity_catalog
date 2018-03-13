@@ -164,7 +164,7 @@ def listModels(brand):
     carMakers = session.query(Brand).all()
     selectedBrand = session.query(Brand).filter_by(name=brand).one()
     models = session.query(Model).filter_by(brand_id=selectedBrand.id).all()
-    print ""
+
     if 'username' not in login_session:
         return render_template(
             'modelList/publicModels.html',
