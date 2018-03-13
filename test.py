@@ -8,5 +8,7 @@ Base.metadata.bind = engine
 DB = sessionmaker(bind=engine)
 session = DB()
 
-# print session.query(User).one().id
-print session.query(Model).first().brand.name
+carMakers = session.query(Brand).all()
+# selectedBrand = session.query(Brand).filter_by(id=brand_id).one()
+# models = session.query(Model).filter_by(model_id=brand_id).all()
+print carMakers

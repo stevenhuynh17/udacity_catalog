@@ -30,6 +30,7 @@ Base.metadata.bind = engine
 DB = sessionmaker(bind=engine)
 session = DB()
 
+
 # OAuth Login System
 @app.route('/login')
 def showLogin():
@@ -38,6 +39,7 @@ def showLogin():
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
 
 # Third party OAuth sign in via Google
 @app.route('/gconnect', methods=['POST'])
@@ -99,7 +101,7 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
-
+    print data
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
@@ -111,6 +113,7 @@ def gconnect():
         print "User already exists, restablishing connection..."
 
     return render_template('login_success.html', info=login_session)
+
 
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -132,6 +135,7 @@ def gdisconnect():
     flash("Successfully logged out!")
     return render_template('publicHome.html', brands=brand, models=models)
 
+
 def login_required(f):
     @wraps(f)
     def checkLogin():
@@ -141,6 +145,7 @@ def login_required(f):
     return checkLogin
 
 
+# Home Page
 @app.route('/')
 def main():
     brand = session.query(Brand).all()
@@ -152,6 +157,38 @@ def main():
         user = getUserInfo(getUserID(login_session['email']))
         return render_template(
             'home.html', brands=brand, models=models, user=user)
+
+
+@app.route('/<int:brand_id>/models')
+def listModels(brand_id):
+    carMakers = session.query(Brand).all()
+    selectedBrand = session.query(Brand).filter_by(id=brand_id).one()
+    models = session.query(Model).filter_by(model_id=brand_id).all()
+    if 'username' not in login_session:
+        return render_template(
+            'publicModels.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand
+        )
+    elif getUserID(login_session['email']) is not selectedBrand.user.id:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'models.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand,
+            user=user
+        )
+    else:
+        user = getUserInfo(getUserID(login_session['email']))
+        return render_template(
+            'models_personal.html',
+            brands=carMakers,
+            models=models,
+            brand=selectedBrand,
+            user=user
+        )
 
 
 @login_required
@@ -205,39 +242,6 @@ def newModel():
     return render_template(
         'newModel.html'
     )
-
-
-@app.route('/<int:brand_id>/models')
-def listModels(brand_id):
-    carMakers = session.query(Brand).all()
-    selectedBrand = session.query(Brand).filter_by(id=brand_id).one()
-    models = session.query(Model).filter_by(model_id=brand_id).all()
-    if 'username' not in login_session:
-        return render_template(
-            'publicModels.html',
-            brands=carMakers,
-            models=models,
-            brand=selectedBrand
-        )
-    elif getUserID(login_session['email']) is not selectedBrand.user.id:
-        user = getUserInfo(getUserID(login_session['email']))
-        return render_template(
-            'models.html',
-            brands=carMakers,
-            models=models,
-            brand=selectedBrand,
-            user=user
-        )
-    else:
-        user = getUserInfo(getUserID(login_session['email']))
-        return render_template(
-            'models_personal.html',
-            brands=carMakers,
-            models=models,
-            brand=selectedBrand,
-            user=user
-        )
-
 
 
 @app.route('/models/<int:model_id>')
