@@ -34,7 +34,7 @@
         <a href="{{url_for("editModel", brand=info.brand.name, model=info.name)}}">Edit</a>
       </p>
       <p>
-        <a href="{{url_for("deleteModel", model_id=info.id)}}">Delete</a>
+        <a href="{{url_for("deleteModel", brand=info.brand.name, model=info.name)}}">Delete</a>
       </p>
     </div>
   </body>

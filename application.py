@@ -262,7 +262,7 @@ def editModel(brand, model):
     data = session.query(Model).filter_by(name=model).one()
 
     if 'username' not in login_session:
-        return redirect('login/login')
+        return redirect('/login')
     elif login_session['email'] != modelOwner.email:
         return render_template(
             'modelInfo/publicModelInfo.html', info=data
@@ -292,26 +292,23 @@ def editModel(brand, model):
         )
 
 
-@app.route('/models/<int:model_id>/delete', methods=['GET', 'POST'])
-def deleteModel(model_id):
-    toDelete = session.query(Model).filter_by(id=model_id).one()
-    print "USER ID!!!"
-    print toDelete.user.id
-    print "INFORMATION!!!"
-    print getUserID(login_session['email'])
+@app.route('/<brand>/<model>/delete', methods=['GET', 'POST'])
+def deleteModel(brand, model):
+    toDelete = session.query(Model).filter_by(name=model).one()
+    data = session.query(Brand).filter_by(name=brand).one()
 
     if 'username' not in login_session:
         return redirect('/login')
-    elif getUserID(login_session['email']) is not toDelete.user.id:
+    elif login_session['email'] != toDelete.user.email:
         return redirect('/')
     else:
         if request.method == 'POST':
             session.delete(toDelete)
             session.commit()
-            return redirect(url_for('listModels', brand_id=model_id))
+            return redirect(url_for('listModels', brand=data.name))
         else:
             return render_template(
-                "deleteModel.html", model_id=model_id, item=toDelete
+                "deleteModel.html", model_id=toDelete.id, item=toDelete
             )
 
 

@@ -5,15 +5,15 @@
     <title></title>
   </head>
   <body>
-    <h1>Are you sure you want to delete {{item.name}}</h1>
+    <h1>Are you sure you want to delete the '{{item.brand.name}} {{item.name}}'?</h1>
     <form
       class=""
       action="{{
-        url_for('deleteModel', model_id=model_id)
+        url_for('deleteModel', brand=item.brand.name, model=item.name)
       }}"
       method="post">
       <input type="submit" value="DELETE">
     </form>
-    <a href="{{url_for("modelInfo", model_id=model_id)}}">Cancel</a>
+    <a href="{{url_for("modelInfo", brand=item.brand.name, model=item.name)}}">Cancel</a>
   </body>
 </html>
