@@ -2,7 +2,7 @@ import os
 import sys
 from sqlalchemy import Column, ForeignKey, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import create_engine
 
 
@@ -38,7 +38,7 @@ class Model(Base):
     category = Column(String(250))
 
     brand_id = Column(Integer, ForeignKey('brand.id'))
-    brand = relationship(Brand)
+    brand = relationship(Brand, backref=backref("brand", cascade="all, delete-orphan"))
 
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)

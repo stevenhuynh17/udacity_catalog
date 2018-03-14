@@ -312,23 +312,23 @@ def deleteModel(brand, model):
             )
 
 
-@app.route('/brand/<int:brand_id>/delete', methods=['GET', 'POST'])
-def deleteBrand(brand_id):
-    data = session.query(Brand).filter_by(id=brand_id).one()
+@app.route('/<brand>/delete', methods=['GET', 'POST'])
+def deleteBrand(brand):
+    toDelete = session.query(Brand).filter_by(name=brand).one()
+    data = session.query(Brand).filter_by(name=brand).one()
+
     if 'username' not in login_session:
         return redirect('/login')
-    elif getUserID(login_session['email']) is not data.user.id:
+    elif login_session['email'] != toDelete.user.email:
         return redirect('/')
-    deleteBrand = session.query(Brand).filter_by(id=brand_id).one()
 
     if request.method == 'POST':
-        session.delete(deleteBrand)
-        session.query(Model).filter_by(model_id=brand_id).delete()
+        session.delete(toDelete)
         session.commit()
         return redirect(url_for('main'))
     else:
         return render_template(
-            "deleteBrand.html", brand_id=brand_id, item=deleteBrand
+            "deleteBrand.html", item=data
         )
 
 
