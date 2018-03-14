@@ -101,7 +101,6 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
-    print data
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
@@ -150,7 +149,7 @@ def main():
             'home/home.html', brands=brand, models=models, user=user)
 
 
-@app.route('/<brand>/models')
+@app.route('/<brand>')
 def listModels(brand):
     carMakers = session.query(Brand).all()
     selectedBrand = session.query(Brand).filter_by(name=brand).one()
@@ -212,7 +211,8 @@ def newModel():
     if request.method == 'POST':
         user = getUserInfo(getUserID(login_session['email']))
         brandname = session.query(Brand).filter_by(name=request.form['brand']).all()
-
+        print user.email
+        print "\n"
         if(len(brandname) == 1):
             print "BRAND NAME ALREADY EXISTS!!!"
             print "\n"
@@ -256,35 +256,39 @@ def newModel():
     )
 
 
-@app.route('/models/<int:model_id>/edit', methods=['GET', 'POST'])
-def editModel(model_id):
-    data = session.query(Model).filter_by(id=model_id).one()
+@app.route('/<brand>/<model>/edit', methods=['GET', 'POST'])
+def editModel(brand, model):
+    modelOwner = session.query(Model).filter_by(name=model).one().user
+    data = session.query(Model).filter_by(name=model).one()
+
     if 'username' not in login_session:
-        return redirect('/login')
-    elif getUserID(login_session['email']) is not data.user.id:
+        return redirect('login/login')
+    elif login_session['email'] != modelOwner.email:
         return render_template(
-            'publicModelInfo.html', info=data
+            'modelInfo/publicModelInfo.html', info=data
         )
-    modified = session.query(Model).filter_by(id=model_id).one()
+
     if request.method == 'POST':
         if request.form['name']:
-            modified.name = request.form['name']
-            session.add(modified)
+            data.name = request.form['name']
+            session.add(data)
             session.commit()
         elif request.form['description']:
-            modified.description = request.form['description']
-            session.add(modified)
+            data.description = request.form['description']
+            session.add(data)
             session.commit()
         elif request.form['price']:
-            modified.price = request.form['price']
-            session.add(modified)
+            data.price = request.form['price']
+            session.add(data)
             session.commit()
         elif request.form['category']:
-            modified.category = request.form['category']
-        return redirect(url_for('modelInfo', model_id=model_id))
+            data.category = request.form['category']
+            session.add(data)
+            session.commit()
+        return redirect(url_for('modelInfo', brand=data.brand, model=data.name))
     else:
         return render_template(
-            'editModel.html', model_id=model_id, car=modified
+            'editModel.html', car=data
         )
 
 

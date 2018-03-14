@@ -31,7 +31,7 @@
       <h3>Creator:</h3>
       <p>{{info.user.name}}</p>
       <p>
-        <a href="{{url_for("editModel", model_id=info.id)}}">Edit</a>
+        <a href="{{url_for("editModel", brand=info.brand.name, model=info.name)}}">Edit</a>
       </p>
       <p>
         <a href="{{url_for("deleteModel", model_id=info.id)}}">Delete</a>

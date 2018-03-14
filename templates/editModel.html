@@ -7,7 +7,7 @@
   <body>
     <div class="">
       <form class=""
-        action="{{url_for('editModel', model_id=model_id, )}}"
+        action="{{url_for('editModel', brand=car.brand, model=car.name)}}"
         method="POST">
         <p>Name</p>
         <input
@@ -37,7 +37,7 @@
           type="submit"
           value="Edit Complete">
       </form>
-      <a href="{{url_for("modelInfo", model_id=model_id)}}">Cancel</a>
+      <a href="{{url_for("modelInfo", brand=car.brand, model=car.name)}}">Cancel</a>
     </div>
   </body>
 </html>
