@@ -136,15 +136,6 @@ def gdisconnect():
     return render_template('home/publicHome.html', brands=brand, models=models)
 
 
-def login_required(f):
-    @wraps(f)
-    def checkLogin():
-        if 'username' not in login_session:
-            flash("Please login to continue")
-            return redirect('/login')
-    return checkLogin
-
-
 # Home Page
 @app.route('/')
 def main():
@@ -195,8 +186,6 @@ def listModels(brand):
 @app.route('/<brand>/<model>')
 def modelInfo(brand, model):
     data = session.query(Model).filter_by(name=model).one()
-    print data
-    print "\n"
 
     if 'username' not in login_session:
         return render_template(
@@ -214,53 +203,53 @@ def modelInfo(brand, model):
         )
 
 
-@login_required
 @app.route('/new', methods=['GET', 'POST'])
 def newModel():
+    if 'username' not in login_session:
+        flash("Please login to continue")
+        return redirect('/login')
+
     if request.method == 'POST':
-        # brand = session.query(Brand).filter_by(name=request.form['name']).one()
-        try:
-            print "IN TRY BLOCK"
-            brandname = session.query(Brand).\
-                filter_by(name=request.form['brand']).one()
-            print "Brandname already exists"
+        user = getUserInfo(getUserID(login_session['email']))
+        brandname = session.query(Brand).filter_by(name=request.form['brand']).all()
+
+        if(len(brandname) == 1):
+            print "BRAND NAME ALREADY EXISTS!!!"
+            print "\n"
+            brand = session.query(Brand).filter_by(name=request.form['brand']).one()
             newModel = Model(
                 name=request.form['name'],
                 description=request.form['description'],
                 price=request.form['price'],
                 category=request.form['category'],
-                brand=brandname,
-                user_id=getUserID(login_session['email'])
+                brand=brand,
+                user=user
             )
             session.add(newModel)
             session.commit()
-
-            return redirect(url_for("listModels", brand_id=brandname.id))
-
-        except:
-            print "IN EXCEPTION BLOCK"
+            return redirect(url_for("listModels", brand=brand.name))
+        else:
+            print "NEW BRAND!!!"
+            print "\n"
             newBrand = Brand(
                 name=request.form['brand'],
-                user_id=getUserID(login_session['email'])
+                user=user
             )
             session.add(newBrand)
             session.commit()
 
-            print "NEW BRAND!"
-            print newBrand.name
-
             newModel = Model(
                 name=request.form['name'],
                 description=request.form['description'],
                 price=request.form['price'],
                 category=request.form['category'],
-                brand=session.query(Brand).filter_by(name=newBrand.name).one(),
-                user_id=getUserID(login_session['email'])
+                brand=newBrand,
+                user=user
             )
             session.add(newModel)
             session.commit()
 
-            return redirect(url_for("listModels", brand_id=newBrand.id))
+            return redirect(url_for("listModels", brand=newBrand.name))
 
     return render_template(
         'newModel.html'
