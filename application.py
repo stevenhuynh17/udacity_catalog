@@ -114,6 +114,7 @@ def gconnect():
     return render_template('login/login_success.html', info=login_session)
 
 
+# Sign off the user
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
@@ -149,12 +150,14 @@ def main():
             'home/home.html', brands=brand, models=models, user=user)
 
 
+# List models respective to the brand
 @app.route('/<brand>')
 def listModels(brand):
     carMakers = session.query(Brand).all()
     selectedBrand = session.query(Brand).filter_by(name=brand).one()
     models = session.query(Model).filter_by(brand_id=selectedBrand.id).all()
 
+    # Check if a user is online
     if 'username' not in login_session:
         return render_template(
             'modelList/publicModels.html',
@@ -162,6 +165,7 @@ def listModels(brand):
             models=models,
             brand=selectedBrand
         )
+    # Loads page that is only available for logged in users
     elif getUserID(login_session['email']) is not selectedBrand.user.id:
         user = getUserInfo(getUserID(login_session['email']))
         return render_template(
@@ -171,6 +175,7 @@ def listModels(brand):
             brand=selectedBrand,
             user=user
         )
+    # Loads page of the brand and models if the user is the brand creator
     else:
         user = getUserInfo(getUserID(login_session['email']))
         return render_template(
@@ -182,6 +187,7 @@ def listModels(brand):
         )
 
 
+# Display detailed information of the model itself
 @app.route('/<brand>/<model>')
 def modelInfo(brand, model):
     data = session.query(Model).filter_by(name=model).one()
@@ -202,6 +208,7 @@ def modelInfo(brand, model):
         )
 
 
+# Add new models to the catalog
 @app.route('/new', methods=['GET', 'POST'])
 def newModel():
     if 'username' not in login_session:
@@ -210,13 +217,17 @@ def newModel():
 
     if request.method == 'POST':
         user = getUserInfo(getUserID(login_session['email']))
-        brandname = session.query(Brand).filter_by(name=request.form['brand']).all()
+        brandname = session.query(Brand).filter_by(
+            name=request.form['brand']).all()
         print user.email
         print "\n"
+
+        # Check to determine whether the brandname already exists
         if(len(brandname) == 1):
             print "BRAND NAME ALREADY EXISTS!!!"
             print "\n"
-            brand = session.query(Brand).filter_by(name=request.form['brand']).one()
+            brand = session.query(Brand).filter_by(
+                name=request.form['brand']).one()
             newModel = Model(
                 name=request.form['name'],
                 description=request.form['description'],
@@ -256,6 +267,7 @@ def newModel():
     )
 
 
+# Modify existing models that are respective to the creator
 @app.route('/<brand>/<model>/edit', methods=['GET', 'POST'])
 def editModel(brand, model):
     modelOwner = session.query(Model).filter_by(name=model).one().user
@@ -285,13 +297,15 @@ def editModel(brand, model):
             data.category = request.form['category']
             session.add(data)
             session.commit()
-        return redirect(url_for('modelInfo', brand=data.brand, model=data.name))
+        return redirect(
+            url_for('modelInfo', brand=data.brand, model=data.name))
     else:
         return render_template(
             'editModel.html', car=data
         )
 
 
+# Allows creators to only delete their own items
 @app.route('/<brand>/<model>/delete', methods=['GET', 'POST'])
 def deleteModel(brand, model):
     toDelete = session.query(Model).filter_by(name=model).one()
@@ -312,6 +326,7 @@ def deleteModel(brand, model):
             )
 
 
+# Deletes the brand and all associated models
 @app.route('/<brand>/delete', methods=['GET', 'POST'])
 def deleteBrand(brand):
     toDelete = session.query(Brand).filter_by(name=brand).one()
@@ -332,12 +347,14 @@ def deleteBrand(brand):
         )
 
 
+# Display information in JSON format
 @app.route('/<brand>/<model>/JSON')
 def dataJSON(brand, model):
     data = session.query(Model).filter_by(name=model).all()
     return jsonify(Catalog=[i.serialize for i in data])
 
 
+# Creates a new user
 def createUser(login_session):
     newUser = User(
         name=login_session['username'],
@@ -347,17 +364,19 @@ def createUser(login_session):
     session.commit()
     print "User " + newUser.name + " successfully created!"
 
+
 # Function to get general user infomration
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
+
 
 # Function to retrieve user ID via email
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except:
+    except():
         return None
 
 

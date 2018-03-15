@@ -38,7 +38,9 @@ class Model(Base):
     category = Column(String(250))
 
     brand_id = Column(Integer, ForeignKey('brand.id'))
-    brand = relationship(Brand, backref=backref("brand", cascade="all, delete-orphan"))
+    brand = relationship(Brand, backref=backref(
+                                        "brand",
+                                        cascade="all, delete-orphan"))
 
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
