@@ -48,10 +48,10 @@ class Model(Base):
         return {
             'name': self.name,
             'description': self.description,
-            'id': self.id,
             'price': self.price,
             'category': self.category,
-            'brand': self.brand.name
+            'brand': self.brand.name,
+            'user': self.user.name
         }
 
 

@@ -332,10 +332,10 @@ def deleteBrand(brand):
         )
 
 
-@app.route('/JSON')
-def dataJSON():
-    models = session.query(Model).all()
-    return jsonify(Catalog=[i.serialize for i in models])
+@app.route('/<brand>/<model>/JSON')
+def dataJSON(brand, model):
+    data = session.query(Model).filter_by(name=model).all()
+    return jsonify(Catalog=[i.serialize for i in data])
 
 
 def createUser(login_session):
