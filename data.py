@@ -16,7 +16,7 @@ User1 = User(
 )
 session.add(User1)
 session.commit()
-print "USERS ADDED!!!"
+print ("USERS ADDED!!!")
 
 Mazda = Brand(
     name="Mazda",
@@ -27,6 +27,7 @@ session.commit()
 
 Mazda3 = Model(
     name="Mazda3",
+    img="../../static/img/mazda3_2017.jpg",
     description="Entry level car",
     price="$20,000",
     category="sedan",
@@ -44,6 +45,7 @@ session.commit()
 
 Model3 = Model(
     name="Model S",
+    img="../../static/img/tesla_modelS_2017.jpg",
     description="Full size luxury electric car",
     price="$60,000",
     category="sedan",
@@ -53,4 +55,4 @@ Model3 = Model(
 session.add(Model3)
 session.commit()
 
-print "Brands and models added!"
+print ("Brands and models added!")

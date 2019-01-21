@@ -33,6 +33,7 @@ class Model(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
+    img = Column(String(100), nullable=False)
     description = Column(String(250))
     price = Column(String(8))
     category = Column(String(250))
